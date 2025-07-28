@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Upload, X, Save, Package, Image as ImageIcon, GripVertical } from 'lucide-react';
-import { useDeliveryProducts } from '../../hooks/useDeliveryProducts';
+import { useDeliveryProducts } from '../hooks/useDeliveryProducts';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useProductScheduling } from '../../hooks/useProductScheduling';
 import ImageUploadModal from './ImageUploadModal';
