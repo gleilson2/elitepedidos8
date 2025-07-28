@@ -6,6 +6,73 @@ import { useProductScheduling } from '../../hooks/useProductScheduling';
 import ImageUploadModal from './ImageUploadModal';
 import ProductScheduleModal from './ProductScheduleModal';
 
+// Componente otimizado para renderização de produtos
+const ProductCard = React.memo(({ product, productImages, onEdit, onSchedule, onDelete }) => {
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price);
+  };
+
+  return (
+    <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+      {(productImages[product.id] || product.image_url) && (
+        <img
+          src={productImages[product.id] || product.image_url}
+          alt={product.name}
+          className="w-full h-48 object-cover"
+          loading="lazy"
+        />
+      )}
+      <div className="p-4">
+        <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-lg font-bold text-green-600">
+            {formatPrice(product.price)}
+          </span>
+          {product.original_price && (
+            <span className="text-sm text-gray-500 line-through">
+              {formatPrice(product.original_price)}
+            </span>
+          )}
+        </div>
+        <div className="flex justify-between items-center">
+          <span className={`px-2 py-1 rounded text-xs ${
+            product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}>
+            {product.is_active ? 'Ativo' : 'Inativo'}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onEdit(product)}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onSchedule(product)}
+              className="text-orange-600 hover:text-orange-800"
+              title="Programar disponibilidade"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => onDelete(product.id)}
+              className="text-red-600 hover:text-red-800"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 interface ComplementOption {
   name: string;
   price: number;
@@ -232,30 +299,36 @@ const ProductsPanel: React.FC = () => {
         return;
       }
       
-      console.log('🔄 Carregando imagens dos produtos...');
       const images: Record<string, string> = {};
       let successCount = 0;
       let errorCount = 0;
       
-      for (const product of products) {
-        try {
-          const savedImage = await getProductImage(product.id);
-          if (savedImage) {
-            images[product.id] = savedImage;
-            successCount++;
-            console.log(`✅ Imagem carregada para produto ${product.name}:`, savedImage.substring(0, 50) + '...');
+      // Carregar imagens em lotes para melhor performance
+      const batchSize = 5;
+      const productBatches = [];
+      for (let i = 0; i < products.length; i += batchSize) {
+        productBatches.push(products.slice(i, i + batchSize));
+      }
+      
+      for (const batch of productBatches) {
+        const batchPromises = batch.map(async (product) => {
+          try {
+            const savedImage = await getProductImage(product.id);
+            if (savedImage) {
+              images[product.id] = savedImage;
+              successCount++;
+            }
+          } catch (error) {
+            errorCount++;
+            console.warn(`⚠️ Erro ao carregar imagem do produto ${product.name}`);
           }
-        } catch (error) {
-          errorCount++;
-          // Silently handle errors since getProductImage already logs them
-          console.warn(`⚠️ Erro ao carregar imagem do produto ${product.name} - continuando sem imagem`);
-        }
+        });
+        
+        await Promise.all(batchPromises);
       }
       
       setProductImages(images);
-      if (successCount > 0 || errorCount > 0) {
-        console.log(`📊 Carregamento de imagens concluído: ${successCount} sucessos, ${errorCount} erros`);
-      }
+      console.log(`📊 Imagens carregadas: ${successCount} sucessos, ${errorCount} erros`);
     };
 
     // Only load images if we have products and Supabase is configured
