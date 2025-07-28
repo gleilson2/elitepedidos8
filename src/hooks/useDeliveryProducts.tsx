@@ -712,76 +712,35 @@ const ProductsPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map(product => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            productImages={productImages}
-            onEdit={handleEdit}
-            onSchedule={handleScheduleProduct}
-            onDelete={deleteProduct}
-          />
-        ))}
-      </div>
+                        <div className="text-xs text-gray-500 mb-2">
+                          💡 Dica: Clique em "Gerenciar Imagens" para fazer upload ou selecionar uma imagem<br/>
+                          🔄 A imagem será salva automaticamente no banco de dados<br/>
+                          📱 Imagens ficam sincronizadas em todos os dispositivos
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {(formData.image_url || (editingProduct?.id && productImages[editingProduct.id])) ? (
+                            <img
+                              src={formData.image_url || (editingProduct?.id && productImages[editingProduct.id]) || ''}
+                              alt="Preview"
+                              className="w-20 h-20 object-cover rounded-lg border"
+                            />
+                          ) : (
+                            <div className="w-20 h-20 bg-gray-100 rounded-lg border flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-gray-400" />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setShowImageModal(true)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Gerenciar Imagens
+                          </button>
+                        </div>
+                      </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h3 className="text-xl font-semibold">
-                {editingProduct ? 'Editar Produto' : 'Novo Produto'}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Imagem do Produto */}
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-4">Imagem do Produto</h4>
-                  <div className="flex items-center gap-4">
-                    {(formData.image_url || (editingProduct?.id && productImages[editingProduct.id])) && (
-                      <img
-                        src={formData.image_url || (editingProduct?.id && productImages[editingProduct.id])}
-                        alt="Preview"
-                        className="w-24 h-24 object-cover rounded-lg border"
-                      />
-                    )}
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowImageModal(true)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                      >
-                        <ImageIcon className="w-4 h-4" />
-                        Selecionar Imagem
-                      </button>
-                      {formData.image_url && (
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, image_url: undefined }))}
-                          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                        >
-                          Remover
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Informações Básicas */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Coluna Esquerda - Informações Básicas */}
-                  <div className="space-y-4">
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-4">Informações Básicas</h4>
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Nome do Produto *
