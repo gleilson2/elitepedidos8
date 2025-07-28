@@ -712,80 +712,86 @@ const ProductsPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="text-xs text-gray-500 mb-2">
-                          💡 Dica: Clique em "Gerenciar Imagens" para fazer upload ou selecionar uma imagem<br/>
-                          🔄 A imagem será salva automaticamente no banco de dados<br/>
-                          📱 Imagens ficam sincronizadas em todos os dispositivos
-                        </div>
-                        <div className="flex items-center gap-4">
-                          {(formData.image_url || (editingProduct?.id && productImages[editingProduct.id])) ? (
-                            <img
-                              src={formData.image_url || (editingProduct?.id && productImages[editingProduct.id]) || ''}
-                              alt="Preview"
-                              className="w-20 h-20 object-cover rounded-lg border"
-                            />
-                          ) : (
-                            <div className="w-20 h-20 bg-gray-100 rounded-lg border flex items-center justify-center">
-                              <ImageIcon className="w-8 h-8 text-gray-400" />
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setShowImageModal(true)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                          >
-                            <Upload className="w-4 h-4" />
-                            Gerenciar Imagens
-                          </button>
-                        </div>
-                      </div>
+        {products.map(product => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            productImages={productImages}
+            onEdit={handleEdit}
+            onSchedule={handleScheduleProduct}
+            onDelete={deleteProduct}
+          />
+        ))}
+      </div>
 
-                      <div className="grid grid-cols-1 gap-4">
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h3 className="text-xl font-semibold">
+                {editingProduct ? 'Editar Produto' : 'Novo Produto'}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Layout em duas colunas */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Coluna Esquerda - Informações básicas */}
+                  <div className="space-y-4">
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-4">Informações Básicas</h4>
+                      
+                      <div className="space-y-4">
+                        {/* Imagem */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Nome do Produto *
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagem do Produto
                           </label>
-                          <input
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                          />
+                          <div className="text-xs text-gray-500 mb-2">
+                            💡 Dica: Clique em "Gerenciar Imagens" para fazer upload ou selecionar uma imagem<br/>
+                            🔄 A imagem será salva automaticamente no banco de dados<br/>
+                            📱 Imagens ficam sincronizadas em todos os dispositivos
+                          </div>
+                          <div className="flex items-center gap-4">
+                            {(formData.image_url || (editingProduct?.id && productImages[editingProduct.id])) ? (
+                              <img
+                                src={formData.image_url || (editingProduct?.id && productImages[editingProduct.id]) || ''}
+                                alt="Preview"
+                                className="w-20 h-20 object-cover rounded-lg border"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-100 rounded-lg border flex items-center justify-center">
+                                <ImageIcon className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setShowImageModal(true)}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Gerenciar Imagens
+                            </button>
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Categoria *
-                          </label>
-                          <select
-                            value={formData.category}
-                            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                          >
-                            <option value="acai">Açaí</option>
-                            <option value="combo">Combo</option>
-                            <option value="milkshake">Milkshake</option>
-                            <option value="vitamina">Vitamina</option>
-                            <option value="sorvetes">Sorvetes</option>
-                            <option value="bebidas">Bebidas</option>
-                            <option value="complementos">Complementos</option>
-                            <option value="sobremesas">Sobremesas</option>
-                            <option value="outros">Outros</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Preço (R$) *
+                              Nome do Produto *
                             </label>
                             <input
-                              type="number"
-                              step="0.01"
-                              value={formData.price}
-                              onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                              type="text"
+                              value={formData.name}
+                              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               required
                             />
@@ -793,31 +799,69 @@ const ProductsPanel: React.FC = () => {
 
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Preço Original (R$)
+                              Categoria *
                             </label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={formData.original_price || ''}
-                              onChange={(e) => setFormData(prev => ({ ...prev, original_price: parseFloat(e.target.value) || undefined }))}
+                            <select
+                              value={formData.category}
+                              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Para produtos em promoção (preço riscado)"
-                            />
+                              required
+                            >
+                              <option value="acai">Açaí</option>
+                              <option value="combo">Combo</option>
+                              <option value="milkshake">Milkshake</option>
+                              <option value="vitamina">Vitamina</option>
+                              <option value="sorvetes">Sorvetes</option>
+                              <option value="bebidas">Bebidas</option>
+                              <option value="complementos">Complementos</option>
+                              <option value="sobremesas">Sobremesas</option>
+                              <option value="outros">Outros</option>
+                            </select>
                           </div>
-                        </div>
 
-                        <div>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={formData.is_weighable}
-                              onChange={(e) => setFormData(prev => ({ ...prev, is_weighable: e.target.checked }))}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm font-medium text-gray-700">
-                              Produto pesável (vendido por peso)
-                            </span>
-                          </label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Preço (R$) *
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={formData.price}
+                                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Preço Original (R$)
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={formData.original_price || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, original_price: parseFloat(e.target.value) || undefined }))}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Para produtos em promoção (preço riscado)"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={formData.is_weighable}
+                                onChange={(e) => setFormData(prev => ({ ...prev, is_weighable: e.target.checked }))}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm font-medium text-gray-700">
+                                Produto pesável (vendido por peso)
+                              </span>
+                            </label>
+                          </div>
                         </div>
                       </div>
                     </div>
