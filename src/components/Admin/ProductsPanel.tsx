@@ -712,7 +712,7 @@ const ProductsPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
+        {products.map(product => (
           <ProductCard
             key={product.id}
             product={product}
@@ -724,31 +724,29 @@ const ProductsPanel: React.FC = () => {
         ))}
       </div>
 
+      {/* Modal de Produto */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-7xl w-full max-h-[95vh] flex flex-col">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b">
               <h3 className="text-xl font-semibold">
                 {editingProduct ? 'Editar Produto' : 'Novo Produto'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-400 hover:text-gray-600"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Coluna Esquerda - Informações Básicas */}
                   <div className="space-y-4">
                     <div className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-4 flex items-center gap-2">
-                        <Package className="w-4 h-4" />
-                        Informações Básicas
-                      </h4>
+                      <h4 className="font-semibold mb-4">Informações Básicas</h4>
                       
                       {/* Upload de Imagem */}
                       <div className="mb-4">
